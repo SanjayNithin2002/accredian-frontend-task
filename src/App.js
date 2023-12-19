@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Route, Routes,  Navigate  } from 'react-router
 import SignUp from './components/Signup';
 import LogIn from './components/Login';
 import OTPForm from './components/OTPForm';
+import ForgotPassword from './components/ForgotPassword';
 import React from 'react';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
         <Route path="/login" element={<LogIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/otpform" element={<OTPForm />} />
+        <Route path="/forgotpassword" element={<ForgotPassword />} />
         <Route path="/" element={<Navigate to="/signup" />} />
       </Routes>
     </Router>

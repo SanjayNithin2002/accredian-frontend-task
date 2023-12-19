@@ -45,14 +45,15 @@ export default function SignUp() {
       });
       const responseData = await response.json();
       if (!response.ok) {
-        throw new Error(responseData.error);
+        const error = new Error(responseData.error);
+        error.status = response.status;
+        throw error;
       }
-      console.log(responseData);
       SnackbarRef.current.openSnackbar(responseData.message);
 
     } catch (error) {
       console.log(error);
-      SnackbarRef.current.openSnackbar(error.message);
+      SnackbarRef.current.openSnackbar(`${error.status || 500} - ${error.message}`);
     }
   };
 

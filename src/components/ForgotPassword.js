@@ -17,8 +17,7 @@ import SimpleSnackbar from './SimpleSnackbar';
 const defaultTheme = createTheme();
 
 const schema = yup.object().shape({
-    email: yup.string().required('This field is required'),
-    password: yup.string().required('Password is required'),
+    email: yup.string().email('Invalid Email').required('This field is required'),
 });
 
 export default function LogIn() {
@@ -29,17 +28,14 @@ export default function LogIn() {
     const { errors } = formState;
 
     const onSubmit = async (data) => {
-        const userData = {
-            user: data.email,
-            password: data.password
-        }
+        console.log(data)
         try {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch('http://localhost:3000/sendotp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify(data),
             });
             const responseData = await response.json();
             if (!response.ok) {
@@ -47,6 +43,7 @@ export default function LogIn() {
                 error.status = response.status;
                 throw error;
             }
+            console.log(responseData);
             SnackbarRef.current.openSnackbar(responseData.message);
 
         } catch (error) {
@@ -71,7 +68,7 @@ export default function LogIn() {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Log in
+                        Forgot Password
                     </Typography>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>
                         <Controller
@@ -85,29 +82,10 @@ export default function LogIn() {
                                     required
                                     fullWidth
                                     id="email"
-                                    label="Username or Email"
+                                    label="Email"
                                     autoComplete="email"
                                     error={!!errors.email}
                                     helperText={errors.email?.message}
-                                />
-                            )}
-                        />
-                        <Controller
-                            name="password"
-                            control={control}
-                            defaultValue=""
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    name="password"
-                                    label="Password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    error={!!errors.password}
-                                    helperText={errors.password?.message}
                                 />
                             )}
                         />
@@ -119,15 +97,10 @@ export default function LogIn() {
                         >
                             Log In
                         </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="/forgotpassword" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
+                        <Grid container justifyContent="center">
                             <Grid item>
                                 <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>
                         </Grid>
