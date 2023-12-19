@@ -13,6 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import SimpleSnackbar from './SimpleSnackbar';
 
 const defaultTheme = createTheme();
 
@@ -27,13 +28,32 @@ const schema = yup.object().shape({
 });
 
 export default function SignUp() {
+  const SnackbarRef = React.useRef();
   const { handleSubmit, control, formState, setError } = useForm({
     resolver: yupResolver(schema),
   });
   const { errors } = formState;
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    try {
+      const response = await fetch('http://localhost:3000/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.error);
+      }
+      console.log(responseData);
+      SnackbarRef.current.openSnackbar(responseData.message);
+
+    } catch (error) {
+      console.log(error);
+      SnackbarRef.current.openSnackbar(error.message);
+    }
   };
 
   return (
@@ -54,7 +74,7 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <br/>
+          <br />
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -140,6 +160,7 @@ export default function SignUp() {
               </Grid>
             </Grid>
           </form>
+          <SimpleSnackbar ref={SnackbarRef} />
         </Box>
       </Container>
     </ThemeProvider>
