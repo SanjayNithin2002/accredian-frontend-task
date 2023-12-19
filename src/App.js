@@ -13,7 +13,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/otpform" element={<OTPForm />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/" element={<Navigate to="/signup" />} />
+        <Route path="/" exact element={<Navigate to="/signup" />} />
       </Routes>
     </Router>
   );

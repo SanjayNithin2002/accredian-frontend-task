@@ -14,6 +14,7 @@ import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SimpleSnackbar from './SimpleSnackbar';
+import { useNavigate } from 'react-router-dom';
 const defaultTheme = createTheme();
 
 const schema = yup.object().shape({
@@ -21,6 +22,7 @@ const schema = yup.object().shape({
 });
 
 export default function LogIn() {
+    const navigate = useNavigate();
     const SnackbarRef = React.useRef();
     const { handleSubmit, control, formState } = useForm({
         resolver: yupResolver(schema),
@@ -42,10 +44,11 @@ export default function LogIn() {
                 const error = new Error(responseData.error);
                 error.status = response.status;
                 throw error;
+            }else{
+                navigate('/otpform', { state: responseData});
             }
-            console.log(responseData);
-            SnackbarRef.current.openSnackbar(responseData.message);
-
+            
+            
         } catch (error) {
             console.log(error);
             SnackbarRef.current.openSnackbar(`${error.status || 500} - ${error.message}`);
@@ -100,7 +103,7 @@ export default function LogIn() {
                         <Grid container justifyContent="center">
                             <Grid item>
                                 <Link href="/signup" variant="body2">
-                                {"Don't have an account? Sign Up"}
+                                    {"Don't have an account? Sign Up"}
                                 </Link>
                             </Grid>
                         </Grid>
