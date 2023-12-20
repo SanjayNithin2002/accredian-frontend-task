@@ -40,7 +40,7 @@ export default function ChangePassword() {
             password: data.password
         }
         try {
-            const response = await fetch('http://localhost:3000/changepassword', {
+            const response = await fetch('https://accredian-backend-task-gray.vercel.app/changepassword', {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

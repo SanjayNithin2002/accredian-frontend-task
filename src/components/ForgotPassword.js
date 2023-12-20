@@ -35,7 +35,7 @@ export default function ForgotPassword() {
     const onSubmit = async (data) => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:3000/sendotp', {
+            const response = await fetch('https://accredian-backend-task-gray.vercel.app/sendotp', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
