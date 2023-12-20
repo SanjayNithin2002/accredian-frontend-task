@@ -12,6 +12,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useForm, Controller } from 'react-hook-form';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SimpleSnackbar from './SimpleSnackbar';
@@ -24,6 +25,7 @@ const schema = yup.object().shape({
 });
 
 export default function LogIn() {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const SnackbarRef = React.useRef();
     const { handleSubmit, control, formState } = useForm({
@@ -55,6 +57,7 @@ export default function LogIn() {
             else {
                 setLoading(false);
                 SnackbarRef.current.openSnackbar(responseData.message);
+                navigate('/home', { state: {message: 'Login Successful'}});
             }
         } catch (error) {
             setLoading(false);

@@ -4,6 +4,7 @@ import LogIn from './components/Login';
 import OTPForm from './components/OTPForm';
 import ForgotPassword from './components/ForgotPassword';
 import ChangePassword from './components/ChangePassword';
+import Home from './components/Home';
 import React from 'react';
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LogIn />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/otpform" element={<OTPForm />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
