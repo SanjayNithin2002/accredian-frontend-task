@@ -14,14 +14,17 @@ import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SimpleSnackbar from './SimpleSnackbar';
+import CircularIndeterminate from './CircularIndeterminate';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 const defaultTheme = createTheme();
 
 const schema = yup.object().shape({
     email: yup.string().email('Invalid Email').required('This field is required'),
 });
 
-export default function LogIn() {
+export default function ForgotPassword() {
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const SnackbarRef = React.useRef();
     const { handleSubmit, control, formState } = useForm({
@@ -30,7 +33,7 @@ export default function LogIn() {
     const { errors } = formState;
 
     const onSubmit = async (data) => {
-        console.log(data)
+        setLoading(true);
         try {
             const response = await fetch('http://localhost:3000/sendotp', {
                 method: 'POST',
@@ -41,6 +44,7 @@ export default function LogIn() {
             });
             const responseData = await response.json();
             if (!response.ok) {
+                setLoading(false);
                 const error = new Error(responseData.error);
                 error.status = response.status;
                 throw error;
@@ -50,6 +54,7 @@ export default function LogIn() {
             
             
         } catch (error) {
+            setLoading(false);
             console.log(error);
             SnackbarRef.current.openSnackbar(`${error.status || 500} - ${error.message}`);
         }
@@ -98,7 +103,7 @@ export default function LogIn() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Log In
+                            Submit
                         </Button>
                         <Grid container justifyContent="center">
                             <Grid item>
@@ -108,6 +113,8 @@ export default function LogIn() {
                             </Grid>
                         </Grid>
                     </form>
+                    <br/>
+                    {loading && <CircularIndeterminate />}
                     <SimpleSnackbar ref={SnackbarRef} />
                 </Box>
             </Container>

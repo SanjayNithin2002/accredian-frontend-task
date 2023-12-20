@@ -10,18 +10,38 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { useForm, Controller } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import SimpleSnackbar from './SimpleSnackbar';
+import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 const defaultTheme = createTheme();
+const schema = yup.object().shape({
+  otp: yup.string().matches(/^\d{6}$/, { message: 'OTP must be exactly 6 digits' }),
+});
 
 export default function OTPForm() {
-  const { state } = useLocation() 
-  console.log(state);
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      otp: data.get('otp'),
-    });
+  const navigate = useNavigate();
+  const { state } = useLocation();
+
+  const SnackbarRef = React.useRef();
+  const { handleSubmit, control, formState } = useForm({
+    resolver: yupResolver(schema),
+  });
+  const { errors } = formState;
+
+  const onSubmit = async (data) => {
+    // eslint-disable-next-line eqeqeq
+    if(data.otp != state.otp){
+      SnackbarRef.current.openSnackbar('401 - Invalid OTP');
+    }
+    else{
+      const responseData = {
+        email: state.email
+      };
+      navigate('/changepassword', { state: responseData});
+    }
   };
 
   return (
@@ -40,37 +60,43 @@ export default function OTPForm() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Enter OTP 
+            Enter OTP
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Controller
+              name="otp"
+              control={control}
+              defaultValue=""
+              render={({ field }) => (
                 <TextField
-                  name="otp"
+                  {...field}
+                  margin="normal"
                   required
                   fullWidth
                   id="otp"
-                  label="Enter OTP"
-                  autoFocus
+                  label="OTP"
+                  error={!!errors.otp}
+                  helperText={errors.otp?.message}
                 />
-              </Grid>
-            </Grid>
+              )}
+            />
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Verify OTP
+              Submit
             </Button>
             <Grid container justifyContent="center">
               <Grid item>
-                <Link href='/login' variant="body2">
-                  Already have an account? Log in
+                <Link href="/signup" variant="body2">
+                  {"Don't have an account? Sign Up"}
                 </Link>
               </Grid>
             </Grid>
-          </Box>
+          </form>
+          <SimpleSnackbar ref={SnackbarRef} />
         </Box>
       </Container>
     </ThemeProvider>

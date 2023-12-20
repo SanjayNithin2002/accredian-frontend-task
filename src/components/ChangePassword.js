@@ -11,20 +11,22 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useForm, Controller } from 'react-hook-form';
-import { useState } from 'react';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import SimpleSnackbar from './SimpleSnackbar';
 import CircularIndeterminate from './CircularIndeterminate';
+import { useLocation } from 'react-router-dom';
+import { useState } from 'react';
+
 const defaultTheme = createTheme();
 
 const schema = yup.object().shape({
-    email: yup.string().required('This field is required'),
-    password: yup.string().required('Password is required'),
+    password: yup.string().matches(/^.{8,}$/, { message: "Contains Atleast 8 characters." }).required('Password is required'),
 });
 
-export default function LogIn() {
+export default function ChangePassword() {
     const [loading, setLoading] = useState(false);
+    const { state } = useLocation();
     const SnackbarRef = React.useRef();
     const { handleSubmit, control, formState } = useForm({
         resolver: yupResolver(schema),
@@ -33,17 +35,17 @@ export default function LogIn() {
 
     const onSubmit = async (data) => {
         setLoading(true);
-        const userData = {
-            user: data.email,
+        const requestData = {
+            email: state.email,
             password: data.password
         }
         try {
-            const response = await fetch('http://localhost:3000/login', {
-                method: 'POST',
+            const response = await fetch('http://localhost:3000/changepassword', {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userData),
+                body: JSON.stringify(requestData),
             });
             const responseData = await response.json();
             if (!response.ok) {
@@ -51,8 +53,7 @@ export default function LogIn() {
                 const error = new Error(responseData.error);
                 error.status = response.status;
                 throw error;
-            }
-            else {
+            } else {
                 setLoading(false);
                 SnackbarRef.current.openSnackbar(responseData.message);
             }
@@ -79,27 +80,9 @@ export default function LogIn() {
                         <LockOutlinedIcon />
                     </Avatar>
                     <Typography component="h1" variant="h5">
-                        Log in
+                        Change Password
                     </Typography>
                     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-                        <Controller
-                            name="email"
-                            control={control}
-                            defaultValue=""
-                            render={({ field }) => (
-                                <TextField
-                                    {...field}
-                                    margin="normal"
-                                    required
-                                    fullWidth
-                                    id="email"
-                                    label="Username or Email"
-                                    autoComplete="email"
-                                    error={!!errors.email}
-                                    helperText={errors.email?.message}
-                                />
-                            )}
-                        />
                         <Controller
                             name="password"
                             control={control}
@@ -110,10 +93,9 @@ export default function LogIn() {
                                     margin="normal"
                                     required
                                     fullWidth
-                                    name="password"
+                                    id="password"
                                     label="Password"
                                     type="password"
-                                    autoComplete="current-password"
                                     error={!!errors.password}
                                     helperText={errors.password?.message}
                                 />
@@ -125,22 +107,17 @@ export default function LogIn() {
                             variant="contained"
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Log In
+                            Submit
                         </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="/forgotpassword" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
+                        <Grid container justifyContent="center">
                             <Grid item>
-                                <Link href="/signup" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                <Link href="/login" variant="body2">
+                                    {"Login here"}
                                 </Link>
                             </Grid>
                         </Grid>
                     </form>
-                    <br/>
+                    <br />
                     {loading && <CircularIndeterminate />}
                     <SimpleSnackbar ref={SnackbarRef} />
                 </Box>

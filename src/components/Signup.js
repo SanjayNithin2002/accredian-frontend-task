@@ -13,14 +13,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useForm, Controller } from 'react-hook-form';
 import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useState } from 'react';
 import SimpleSnackbar from './SimpleSnackbar';
-
+import CircularIndeterminate from './CircularIndeterminate';
 const defaultTheme = createTheme();
 
 const schema = yup.object().shape({
   username: yup.string().required('Username is required'),
   email: yup.string().email('Invalid email').required('Email is required'),
-  password: yup.string().required('Password is required'),
+  password: yup.string().matches(/^.{8,}$/, { message: "Password must have minimum 8 characters." }).required('Password is required'),
   confirmPassword: yup
     .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
@@ -28,6 +29,7 @@ const schema = yup.object().shape({
 });
 
 export default function SignUp() {
+  const [loading, setLoading] = useState(false);
   const SnackbarRef = React.useRef();
   const { handleSubmit, control, formState, setError } = useForm({
     resolver: yupResolver(schema),
@@ -35,6 +37,7 @@ export default function SignUp() {
   const { errors } = formState;
 
   const onSubmit = async (data) => {
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:3000/signup', {
         method: 'POST',
@@ -45,13 +48,16 @@ export default function SignUp() {
       });
       const responseData = await response.json();
       if (!response.ok) {
+        setLoading(false);
         const error = new Error(responseData.error);
         error.status = response.status;
         throw error;
+      } else {
+        setLoading(false);
+        SnackbarRef.current.openSnackbar(responseData.message);
       }
-      SnackbarRef.current.openSnackbar(responseData.message);
-
     } catch (error) {
+      setLoading(false);
       console.log(error);
       SnackbarRef.current.openSnackbar(`${error.status || 500} - ${error.message}`);
     }
@@ -161,6 +167,8 @@ export default function SignUp() {
               </Grid>
             </Grid>
           </form>
+          <br />
+          {loading && <CircularIndeterminate />}
           <SimpleSnackbar ref={SnackbarRef} />
         </Box>
       </Container>
